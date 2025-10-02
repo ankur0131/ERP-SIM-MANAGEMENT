@@ -1,0 +1,58 @@
+# Railway configuration for College ERP monorepo
+[build]
+builder = "nixpacks"
+memory = "2048"
+
+[deploy]
+startCommand = "npm run start:all"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 5
+
+[build.args]
+NODE_ENV = "production"
+NODE_VERSION = "18"
+
+[build.environment]
+NPM_CONFIG_PRODUCTION = "false"
+NODE_ENV = "production"
+
+[[services]]
+name = "student-erp"
+source = "."
+
+[services.env]
+NODE_ENV = "production"
+PORT = "3000"
+
+# Google Sheets API Configuration
+GOOGLE_CREDENTIALS_JSON = { type = "string", required = true }
+GOOGLE_SPREADSHEET_ID = { type = "string", required = true }
+
+# JWT Configuration
+JWT_SECRET = { type = "string", required = true }
+
+# JWT Configuration
+JWT_SECRET = "student-erp-secure-jwt-key-2024-change-in-production"
+
+# Google Sheets Integration (configure these with your actual values)
+GOOGLE_KEY_FILE = "goggle_apis/service-account-k.json"
+GOOGLE_SPREADSHEET_ID = "17WaIRuXmMZXzCiocJo6EMoYz5kyTg2g667AQbSufY-k"
+GOOGLE_USERS_SHEET_NAME = "Students"
+GOOGLE_COURSES_SHEET_NAME = "Courses"
+GOOGLE_ENROLLMENTS_SHEET_NAME = "Enrollments"
+GOOGLE_GRADES_SHEET_NAME = "Grades"
+GOOGLE_ATTENDANCE_SHEET_NAME = "Attendance"
+GOOGLE_FACULTY_SHEET_NAME = "Faculty"
+GOOGLE_DEPARTMENTS_SHEET_NAME = "Departments"
+
+# Build all frontend apps
+[build.steps]
+"1" = "npm ci"
+"2" = "npm run build:all"
+
+# Or individual builds if needed
+# "1" = "cd frontend/college-erp-dashboard && npm ci && npm run build"
+# "2" = "cd frontend/faculty-dashboard && npm ci && npm run build"
+# "3" = "cd frontend/student-dashboard && npm ci && npm run build"

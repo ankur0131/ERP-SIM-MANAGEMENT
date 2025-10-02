@@ -1,0 +1,114 @@
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import './styles/theme.css'; // Import theme variables
+import Sidebar from './components/Layout/Sidebar';
+import Navbar from './components/Layout/Navbar';
+import Dashboard from './pages/Dashboard';
+import StudentManagement from './pages/StudentManagement';
+import FacultyManagement from './pages/FacultyManagement';
+import CourseManagement from './pages/CourseManagement';
+import AcademicCalendar from './pages/AcademicCalendar';
+import FinanceManagement from './pages/FinanceManagement';
+import AttendanceExams from './pages/AttendanceExams';
+import LibraryManagement from './pages/LibraryManagement';
+import NoticeBoard from './pages/NoticeBoard';
+import AnalyticsReports from './pages/AnalyticsReports';
+import HelpdeskSupport from './pages/HelpdeskSupport';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import { getToken, clearAuth } from './utils/auth';
+import { fetchJSON } from './utils/api';
+
+// Import role-based login components
+import FacultyLoginContent from '../../faculty-dashboard/src/pages/Login';
+import StudentLoginContent from '../../student-dashboard/src/pages/Login';
+
+// Role-based login component
+const RoleBasedLogin: React.FC<{ role: 'admin' | 'faculty' | 'student' }> = ({ role }) => {
+  const getLoginComponent = () => {
+    switch (role) {
+      case 'admin':
+        return <Login />;
+      case 'faculty':
+        return <FacultyLoginContent />;
+      case 'student':
+        return <StudentLoginContent />;
+      default:
+        return <Login />;
+    }
+  };
+
+  return (
+    <div>
+    </div>
+  );
+};
+
+function App() {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const location = useLocation();
+  const isAuthScreen = location.pathname === '/login' || location.pathname === '/signup' ||
+                     location.pathname.startsWith('/admin') ||
+                     location.pathname.startsWith('/faculty') ||
+                     location.pathname.startsWith('/student');
+  const navigate = useNavigate();
+  const isLoginScreen = location.pathname === '/login';
+  const isSignupScreen = location.pathname === '/signup';
+  return (
+    isAuthScreen ? (
+      <Routes>
+        <Route path="/login" element={isLoginScreen ? <Login /> : <Navigate to="/login" replace />} />
+        <Route path="/signup" element={isSignupScreen ? <Signup /> : <Navigate to="/signup" replace />} />
+{{ ... }
+        <Route path="/faculty/*" element={<RoleBasedLogin role="faculty" />} />
+        <Route path="/student/*" element={<RoleBasedLogin role="student" />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    ) : (
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+          isMobile={isMobile}
+          setIsMobileOpen={setIsMobileOpen}
+        />
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Navbar
+            onMenuClick={() => setIsMobileOpen(!isMobileOpen)}
+          />
+          <main className="flex-1 overflow-y-auto layout-content">
+            <div className="container py-4 md:py-6">
+              <Routes>
+                <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
+                <Route path="/students" element={<RequireAuth><StudentManagement /></RequireAuth>} />
+                <Route path="/faculty" element={<RequireAuth><FacultyManagement /></RequireAuth>} />
+                <Route path="/courses" element={<RequireAuth><CourseManagement /></RequireAuth>} />
+                <Route path="/academic-calendar" element={<RequireAuth><AcademicCalendar /></RequireAuth>} />
+                <Route path="/finance" element={<RequireAuth><FinanceManagement /></RequireAuth>} />
+                <Route path="/attendance" element={<RequireAuth><AttendanceExams /></RequireAuth>} />
+                <Route path="/library" element={<RequireAuth><LibraryManagement /></RequireAuth>} />
+                <Route path="/notices" element={<RequireAuth><NoticeBoard /></RequireAuth>} />
+                <Route path="/analytics" element={<RequireAuth><AnalyticsReports /></RequireAuth>} />
+                <Route path="/support" element={<RequireAuth><HelpdeskSupport /></RequireAuth>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  );
+}
+
+export default App;
+
+function RequireAuth({ children }: { children: React.ReactElement }) {
+  const token = getToken();
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
