@@ -4,8 +4,10 @@ This project is made possible by the following contributors:
 
 ## Core Team
 
-- **Adarsh** - Developer
-- **Ankur** - Developer
+- **Ankur Sharma** - Developer
+- **Abu Obaida** - Developer
+- **Adarsh Singh** - Developer
+- **Ayushi Kumari** - Developer
 
 ---
 
